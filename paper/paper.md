@@ -41,14 +41,14 @@ While linear constant-coefficient differential equations admit solutions in the 
   However, whenever $V(x)$ is a polynomial of degree $d \ge 3$ (such as the asymmetric anharmonic lattice $V(x) = 2x^2 - \frac{1}{2}x^3$ or the symmetric Duffing double-well $V(x) = -\frac{1}{2}x^2 + \frac{1}{4}x^4$) or a periodic transcendental potential $V(x) = -\omega_0^2 \cos(x)$ (after the algebraic substitution $u = \tan(x/2)$), the algebraic curve $y^2 = 2(E - V(x))$ has topological genus $g \ge 1$. By Liouville's theorem on integration in finite terms, the abelian integral $t(x)$ and its inverse $x(t)$ cannot be expressed in any elementary extension field $\mathcal{E}$; instead, inversion requires Weierstrass elliptic functions $\wp(t; g_2, g_3)$ or Jacobi elliptic functions $\mathrm{sn}(u; k), \mathrm{cn}(u; k), \mathrm{dn}(u; k)$.
 
 * **Obstruction II — Dissipative & Limit-Cycle Differential Galois Obstruction**:  
-  When linear viscous damping ($-\gamma \dot{x}$), quadratic aerodynamic drag ($-c_d |\dot{x}|\dot{x}$), or nonlinear state-dependent pumping ($\mu(1 - x^2)\dot{x}$ in the van der Pol oscillator) is present, energy conservation is broken ($\dot{E} \neq 0$). For the van der Pol limit cycle, the Picard-Vessiot differential Galois obstruction precludes expressing the general trajectory $x(t)$ in closed form using elementary or classical elliptic functions.
+  When linear viscous damping ($-\gamma \dot{x}$), quadratic aerodynamic drag ($-c_d \lvert\dot{x}\rvert\dot{x}$), or nonlinear state-dependent pumping ($\mu(1 - x^2)\dot{x}$ in the van der Pol oscillator) is present, energy conservation is broken ($\dot{E} \neq 0$). For the van der Pol limit cycle, the Picard-Vessiot differential Galois obstruction precludes expressing the general trajectory $x(t)$ in closed form using elementary or classical elliptic functions.
 
 Consequently, any symbolic regression engine that searches for $x = f(t)$ in $\mathcal{E}$ faces an insurmountable representation mismatch: the trajectory $x(t)$ is trans-elementary in time $t$, even though its **differential generator** $\ddot{x} = g(x, \dot{x})$ on the tangent bundle $T\mathcal{M}$ is an exact, sparse combination of elementary functions.
 
 ### 1.2 Contributions
 
 1. **Dual-Track Blind Telemetry Arbiter**: We formulate an automated discovery pipeline that takes raw two-column $(t_i, x_i)$ sensor logs and pits explicit time-domain DAG symbolic regression ($x = f(t)$) against blind phase-space differential discovery ($\ddot{x} = g(x, \dot{x})$), selecting the governing paradigm without human intervention or ground-truth velocity sensors.
-2. **Sign-Reversing & Non-Elementary Law Recovery**: Across five canonical non-elementary physical systems—including an apex-crossing ballistic trajectory where velocity reverses sign ($\dot{x} > 0 \to \dot{x} < 0$), breaking the polynomial degeneracy between $\dot{x}^2$ and $|\dot{x}|\dot{x}$—the phase-space solver recovers 5/5 exact differential laws with extrapolation errors down to $3.54 \times 10^{-9}$, while correctly selecting explicit closed-form regression on an elementary control signal ($x(t) = \sin(t) + 2.5e^{-t}$, $\mathrm{NRMSE} = 1.13 \times 10^{-12}$).
+2. **Sign-Reversing & Non-Elementary Law Recovery**: Across five canonical non-elementary physical systems—including an apex-crossing ballistic trajectory where velocity reverses sign ($\dot{x} > 0 \to \dot{x} < 0$), breaking the polynomial degeneracy between $\dot{x}^2$ and $\lvert\dot{x}\rvert\dot{x}$—the phase-space solver recovers 5/5 exact differential laws with extrapolation errors down to $3.54 \times 10^{-9}$, while correctly selecting explicit closed-form regression on an elementary control signal ($x(t) = \sin(t) + 2.5e^{-t}$, $\mathrm{NRMSE} = 1.13 \times 10^{-12}$).
 3. **Exact Truncation & Noise Amplification Theory**: We verify the $\mathcal{O}(\Delta t^4)$ truncation scaling of symmetric five-point stencils across $[10\text{ Hz}, 500\text{ Hz}]$ and derive the exact variance amplification law $\mathrm{Var}(\hat{\ddot{\epsilon}}) = \frac{1414}{144 \Delta t^4} \sigma_{\epsilon}^2$.
 4. **Savitzky-Golay Regularized Phase-Space Discovery**: We demonstrate that replacing raw finite-difference stencils with local quartic Savitzky-Golay polynomial projections ($W = 18, p = 4$) lowers the exact symbolic support recovery threshold from $60\text{ dB}$ down to $20\text{ dB}$ on the van der Pol oscillator ($40\text{ dB}$ improvement in noise tolerance) and from $70\text{ dB}$ down to $40\text{ dB}$ on the weakly damped Duffing oscillator.
 
@@ -64,15 +64,15 @@ $$
 \mathcal{S} = \{(t_i, \tilde{x}_i)\}_{i=0}^{N_{\mathrm{tot}}-1}, \quad \tilde{x}_i = x(t_i) + \epsilon_i, \quad \epsilon_i \sim \mathcal{N}(0, \sigma_{\epsilon}^2)
 $$
 
-The observational dataset is partitioned at index $N_{\mathrm{tr}} = N_{\mathrm{tot}} / 2$ into two strictly separated intervals:
+The observational sequence is partitioned at index $N_{\mathrm{tr}} = N_{\mathrm{tot}} / 2$ into two strictly quarantined intervals:
 
-* **Observed Training Window** ($t_i \le T_{\mathrm{train}}$, $N_{\mathrm{tr}}$ samples): Used for numerical differentiation, phase-space basis construction, parameter estimation, and initial boundary state determination:
+1. **Observed Training Window** $\mathcal{S}_{\mathrm{tr}}$ ($t_i \le T_{\mathrm{train}}$, $N_{\mathrm{tr}}$ samples), used for numerical derivative reconstruction, phase-space basis evaluation, sparse model selection, and boundary state estimation:
 
 $$
 \mathcal{S}_{\mathrm{tr}} = \{(t_i, \tilde{x}_i)\}_{i=0}^{N_{\mathrm{tr}}-1}
 $$
 
-* **Held-Out Future Horizon** ($t_i > T_{\mathrm{train}}$, $N_{\mathrm{te}}$ samples): Strictly quarantined during discovery and used exclusively to evaluate out-of-distribution extrapolation:
+2. **Held-Out Future Extrapolation Horizon** $\mathcal{S}_{\mathrm{te}}$ ($t_i > T_{\mathrm{train}}$, $N_{\mathrm{te}}$ samples), quarantined strictly during discovery and reserved exclusively to evaluate out-of-distribution trajectory forecasting:
 
 $$
 \mathcal{S}_{\mathrm{te}} = \{(t_i, x(t_i))\}_{i=N_{\mathrm{tr}}}^{N_{\mathrm{tot}}-1}
@@ -135,7 +135,7 @@ Because the effective differentiation baseline scales with $W \Delta t$ rather t
 We construct a candidate phase-space basis $\Phi(x, \dot{x}) \in \mathbb{R}^{11}$ encompassing affine, conservative potential, and dissipative couplings:
 
 $$
-\Phi(x, \dot{x}) = \left[ 1, \, x, \, x^2, \, x^3, \, \sin(x), \, \cos(x), \, \dot{x}, \, x\dot{x}, \, \dot{x}^2, \, x^2\dot{x}, \, |\dot{x}|\dot{x} \right]
+\Phi(x, \dot{x}) = \left[ 1, \, x, \, x^2, \, x^3, \, \sin(x), \, \cos(x), \, \dot{x}, \, x\dot{x}, \, \dot{x}^2, \, x^2\dot{x}, \, \lvert \dot{x} \rvert \dot{x} \right]
 $$
 
 For every candidate subset $\mathcal{I} \subset \{1, \dots, 11\}$ of cardinality $1 \le |\mathcal{I}| \le 3$ ($\sum_{k=1}^3 \binom{11}{k} = 231$ subsets), weights $\mathbf{w}_{\mathcal{I}}$ are computed via Cholesky factorization:
@@ -166,7 +166,7 @@ All experiments were executed in native C++17 compiled with `-O3 -mavx2` on a si
 
 ### 3.1 Benchmark Across Non-Elementary Systems & Positive Control
 
-Note that for `sys04_drag` (Apex-Crossing Ballistics), the projectile is launched **upward** with initial velocity $v(0) = +15.0\text{ m/s}$ from $x(0) = 0.0\text{ m}$ under gravity and quadratic air resistance ($\ddot{x} = -9.81 - 0.25|\dot{x}|\dot{x}$). Because $\dot{x}(t)$ reverses sign at the apex ($t_{\mathrm{apex}} \approx 1.07\text{ s}$), the smooth quadratic term $\dot{x}^2$ has the wrong sign during ascent, rigorously testing whether the solver can distinguish the non-smooth signed drag operator $-0.25|\dot{x}|\dot{x}$ from $+0.25\dot{x}^2$.
+Note that for `sys04_drag` (Apex-Crossing Ballistics), the projectile is launched **upward** with initial velocity $v(0) = +15.0\text{ m/s}$ from $x(0) = 0.0\text{ m}$ under gravity and quadratic air resistance ($\ddot{x} = -9.81 - 0.25\lvert\dot{x}\rvert\dot{x}$). Because $\dot{x}(t)$ reverses sign at the apex ($t_{\mathrm{apex}} \approx 1.07\text{ s}$), the smooth quadratic term $\dot{x}^2$ has the wrong sign during ascent, rigorously testing whether the solver can distinguish the non-smooth signed drag operator $-0.25\lvert\dot{x}\rvert\dot{x}$ from $+0.25\dot{x}^2$.
 
 **Table 1: Dual-Track Blind Telemetry Benchmark (`data/telemetry/systems_benchmark_results.csv`)**
 
@@ -175,18 +175,18 @@ Note that for `sys04_drag` (Apex-Crossing Ballistics), the projectile is launche
 | **`sys01_pendulum`**<br>Damped Nonlinear Pendulum | Incomplete Elliptic Integral $F(\phi, k)$ | $\ddot{x} = -0.2\dot{x} - 9.81\sin(x)$ | $3.00 \times 10^{-1}$ | $\ddot{x} = -0.2000\dot{x} - 9.8100\sin(x)$ | **$2.53 \times 10^{-8}$** | **$1.2 \times 10^7\times$** | $36.9\text{ ms}$ |
 | **`sys02_duffing`**<br>Duffing Bistable Buckling | Jacobi Elliptic $\mathrm{cn}(t; k), \mathrm{dn}(t; k)$ | $\ddot{x} = x - 0.15\dot{x} - x^3$ | $8.19 \times 10^{-1}$ | $\ddot{x} = 1.0000x - 0.1500\dot{x} - 1.0000x^3$ | **$3.54 \times 10^{-9}$** | **$2.3 \times 10^8\times$** | $37.7\text{ ms}$ |
 | **`sys03_vanderpol`**<br>van der Pol Oscillator | Trans-Liouvillian Limit Cycle | $\ddot{x} = -x + \dot{x} - x^2\dot{x}$ | $3.45 \times 10^{-1}$ | $\ddot{x} = -1.0000x + 1.0000\dot{x} - 1.0000x^2\dot{x}$ | **$2.03 \times 10^{-8}$** | **$1.7 \times 10^7\times$** | $39.5\text{ ms}$ |
-| **`sys04_drag`**<br>Apex-Crossing Ballistics | Non-Smooth Sign-Reversing Riccati Flow | $\ddot{x} = -9.81 - 0.25|\dot{x}|\dot{x}$ | $1.18 \times 10^{0}$ | $\ddot{x} = -9.8100 - 0.2500|\dot{x}|\dot{x}$ | **$4.62 \times 10^{-9}$** | **$2.6 \times 10^8\times$** | $81.7\text{ ms}$ |
+| **`sys04_drag`**<br>Apex-Crossing Ballistics | Non-Smooth Sign-Reversing Riccati Flow | $\ddot{x} = -9.81 - 0.25\lvert\dot{x}\rvert\dot{x}$ | $1.18 \times 10^{0}$ | $\ddot{x} = -9.8100 - 0.2500\lvert\dot{x}\rvert\dot{x}$ | **$4.62 \times 10^{-9}$** | **$2.6 \times 10^8\times$** | $81.7\text{ ms}$ |
 | **`sys05_anharmonic`**<br>Anharmonic Crystal Lattice | Weierstrass Elliptic $\wp(t; g_2, g_3)$ | $\ddot{x} = -4x - 0.1\dot{x} + 1.5x^2$ | $3.38 \times 10^{-1}$ | $\ddot{x} = -4.0000x - 0.1000\dot{x} + 1.5000x^2$ | **$5.38 \times 10^{-9}$** | **$6.3 \times 10^7\times$** | $49.4\text{ ms}$ |
 | **`sys06_control`**<br>Elementary Closed-Form | None ($\mathcal{E} = \mathbb{C}(t, e^{-t}, \sin t)$) | $x(t) = \sin(t) + 2.5e^{-t}$ | **$1.13 \times 10^{-12}$** | $\ddot{x} = 0.1522 - 1.1095x + 0.3501x^3$ (Miss) | $3.14 \times 10^{-1}$ | **Track 1 Wins ($2.8 \times 10^{11}\times$)** | $47.3\text{ ms}$ |
 
 #### Key Findings from Table 1:
 1. **Complete Resolution of Non-Elementary Flows (`sys01`–`sys05`)**: On all five non-elementary systems, Track 1 ($x = f(t)$) fails with $\mathrm{NRMSE} \ge 0.30$, whereas Track 2 recovers the exact symbolic terms and coefficients to four decimal places, achieving future trajectory extrapolation $\mathrm{NRMSE} \le 2.53 \times 10^{-8}$.
-2. **Disambiguation of Sign-Reversing Non-Smooth Drag (`sys04_drag`)**: By observing the trajectory across the upward-to-downward apex reversal, Track 2 rejects $+0.25\dot{x}^2$ and locks onto $-9.8100 - 0.2500|\dot{x}|\dot{x}$ with $\mathrm{NRMSE} = 4.62 \times 10^{-9}$.
+2. **Disambiguation of Sign-Reversing Non-Smooth Drag (`sys04_drag`)**: By observing the trajectory across the upward-to-downward apex reversal, Track 2 rejects $+0.25\dot{x}^2$ and locks onto $-9.8100 - 0.2500\lvert\dot{x}\rvert\dot{x}$ with $\mathrm{NRMSE} = 4.62 \times 10^{-9}$.
 3. **Unbiased Positive Control (`sys06_control`)**: Because $x(t) = \sin(t) + 2.5e^{-t}$ is generated by a third-order linear differential operator $(\frac{d}{dt}+1)(\frac{d^2}{dt^2}+1)x = 0$, it cannot be represented as a second-order autonomous ODE $\ddot{x} = g(x, \dot{x})$ (Track 2 $\mathrm{NRMSE} = 0.314$), whereas Track 1 recovers $x(t) = \sin(t) + 2.500000e^{-t}$ with $\mathrm{NRMSE} = 1.13 \times 10^{-12}$.
 
 ---
 
-### 3.2 Temporal Sampling Rate Scaling: Verification of $\mathcal{O}(\Delta t^4)$ Convergence
+### 3.2 Temporal Sampling Rate Scaling: Verification of Quartic Error Convergence
 
 Table 2 reports the empirical scaling of future extrapolation error across sampling intervals $\Delta t \in [0.002, 0.100]\text{ s}$ ($500\text{ Hz}$ down to $10\text{ Hz}$) over a fixed physical horizon $T_{\mathrm{tot}} = 12.0\text{ s}$.
 
@@ -227,13 +227,14 @@ Table 3 compares the Naive 5-Point Stencil against Local Quartic Savitzky-Golay 
 | **Duffing** | $60\text{ dB}$ | $0.0004$ | MISS | $0.1102$ | $2.30 \times 10^{-1}$ | $0.9979x - 0.1516\dot{x} - 0.9989x^3$ | **EXACT** | $0.0020$ | $1.15 \times 10^{-3}$ |
 | **Duffing** | $50\text{ dB}$ | $0.0013$ | MISS | $5.0134$ | $3.58 \times 10^{-1}$ | $0.9935x - 0.1551\dot{x} - 0.9966x^3$ | **EXACT** | $0.0063$ | $3.56 \times 10^{-3}$ |
 | **Duffing** | $40\text{ dB}$ | $0.0040$ | MISS | $18.9448$ | Diverges ($\mathrm{NaN}$) | $0.9793x - 0.1660\dot{x} - 0.9896x^3$ | **EXACT** | $0.0198$ | $1.08 \times 10^{-2}$ |
-| **Duffing** | $35\text{ dB}$ | $0.0072$ | MISS | $1.0000$ | $2.17 \times 10^{0}$ | $0.9992x - 1.0006x^3 - 0.2412|\dot{x}|\dot{x}$ | Backbone $x, x^3$ | $0.1055$ | $4.46 \times 10^{-2}$ |
-| **Duffing** | $30\text{ dB}$ | $0.0127$ | MISS | $1.0000$ | $4.26 \times 10^{0}$ | $0.9709x - 0.9888x^3 - 0.2734|\dot{x}|\dot{x}$ | Backbone $x, x^3$ | $0.1077$ | $4.35 \times 10^{-2}$ |
+| **Duffing** | $35\text{ dB}$ | $0.0072$ | MISS | $1.0000$ | $2.17 \times 10^{0}$ | $0.9992x - 1.0006x^3 - 0.2412\lvert\dot{x}\rvert\dot{x}$ | Backbone $x, x^3$ | $0.1055$ | $4.46 \times 10^{-2}$ |
+| **Duffing** | $30\text{ dB}$ | $0.0127$ | MISS | $1.0000$ | $4.26 \times 10^{0}$ | $0.9709x - 0.9888x^3 - 0.2734\lvert\dot{x}\rvert\dot{x}$ | Backbone $x, x^3$ | $0.1077$ | $4.35 \times 10^{-2}$ |
 
 #### Mechanism of the Phase Transition Shift:
+
 1. **Why Naive Stencils Fail Below $60\text{--}70\text{ dB}$**: At $\mathrm{SNR} = 50\text{ dB}$ on van der Pol ($\sigma_{\epsilon} = 3.9 \times 10^{-3}$), the five-point acceleration noise standard deviation reaches $\sigma_{\hat{\ddot{\epsilon}}} \approx 3.1336 \times 10^4 \times 0.0039 \approx 122.2$, completely swamping the true acceleration signal ($\mathrm{Std}(\ddot{x}) \approx 2.1$).
 2. **Why Savitzky-Golay Extends Exact Recovery to $20\text{--}40\text{ dB}$**: Projecting onto a local quartic polynomial over $2W+1 = 37$ samples ($0.36\text{ s}$ window) attenuates acceleration noise standard deviation by $\sim 180\times$, enabling exact symbolic support recovery of the van der Pol limit cycle down to $20\text{ dB}$ ($\sigma_{\epsilon} = 0.122$, $\sim 10\%$ amplitude noise).
-3. **Weak-Term Collinearity Threshold in Duffing ($35\text{ dB}$)**: In the Duffing oscillator, the linear damping term $-0.15\dot{x}$ accounts for only $0.38\%$ of total acceleration variance, whereas the cubic restoring force $x - x^3$ accounts for $>99.6\%$. Below $40\text{ dB}$, residual velocity errors cause $-0.15\dot{x}$ to become collinear with $-0.24|\dot{x}|\dot{x}$ on bounded oscillations ($|\dot{x}| \approx 0.6$), substituting quadratic drag while still preserving the exact conservative double-well backbone $0.9992x - 1.0006x^3$ and maintaining a $4.46\%$ extrapolation NRMSE down to $25\text{ dB}$.
+3. **Weak-Term Collinearity Threshold in Duffing ($35\text{ dB}$)**: In the Duffing oscillator, the linear damping term $-0.15\dot{x}$ accounts for only $0.38\%$ of total acceleration variance, whereas the cubic restoring force $x - x^3$ accounts for $>99.6\%$. Below $40\text{ dB}$, residual velocity errors cause $-0.15\dot{x}$ to become collinear with $-0.24\lvert\dot{x}\rvert\dot{x}$ on bounded oscillations ($|\dot{x}| \approx 0.6$), substituting quadratic drag while still preserving the exact conservative double-well backbone $0.9992x - 1.0006x^3$ and maintaining a $4.46\%$ extrapolation NRMSE down to $25\text{ dB}$.
 
 ---
 
