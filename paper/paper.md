@@ -1,6 +1,8 @@
-# Discovery of Non-Elementary Physical Laws from Blind Sensor Telemetry via Phase-Space Code-Neuron Graphs
+# Data-Driven Identification of Non-Elementary Dynamical Systems from Blind Sensor Telemetry
 
-*Independent Researcher*
+**Shubham Barmase**  
+*Independent Researcher*  
+`barmase32@gmail.com`
 
 ---
 

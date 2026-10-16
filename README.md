@@ -1,6 +1,8 @@
-# Discovery of Non-Elementary Physical Laws from Blind Sensor Telemetry via Phase-Space Code-Neuron Graphs
+# Data-Driven Identification of Non-Elementary Dynamical Systems from Blind Sensor Telemetry
 
-*Independent Researcher*
+**Shubham Barmase**  
+*Independent Researcher*  
+`barmase32@gmail.com`
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Format: Open Research Paper & Data](https://img.shields.io/badge/Release-Paper%20%26%20Data-brightgreen.svg)]()
@@ -10,7 +12,7 @@
 
 ## Overview
 
-This repository hosts the complete academic research paper and empirical benchmark datasets for **"Discovery of Non-Elementary Physical Laws from Blind Sensor Telemetry via Phase-Space Code-Neuron Graphs"**.
+This repository hosts the academic research paper and empirical benchmark datasets for **"Data-Driven Identification of Non-Elementary Dynamical Systems from Blind Sensor Telemetry"**.
 
 * **Full Academic Paper**: [`paper/paper.md`](paper/paper.md)
 * **Empirical Datasets & Sweeps**: [`data/`](data/)
@@ -95,9 +97,9 @@ data/
 ## Citation
 
 ```bibtex
-@article{independent2026nonelementary,
-  author    = {Independent Researcher},
-  title     = {Discovery of Non-Elementary Physical Laws from Blind Sensor Telemetry via Phase-Space Code-Neuron Graphs},
+@article{barmase2026nonelementary,
+  author    = {Shubham Barmase},
+  title     = {Data-Driven Identification of Non-Elementary Dynamical Systems from Blind Sensor Telemetry},
   journal   = {GitHub Archive},
   year      = {2026},
   url       = {https://github.com/shu195/non-elementary-discovery-paper}
